@@ -12,6 +12,14 @@ import java.util.Scanner;
 import static com.example.android.backingapp.api.JsonParser.RECIPES_BASE_URI;
 import static com.example.android.backingapp.api.JsonParser.RECIPES_PATH;
 
+
+//TODO use retrofit
+//I highly recommend using Retrofit. it's a type-safe HTTP client for Android and Java.
+//
+//Retrofit will save your development time, And also you can keep your code in developer friendly.
+// Retrofit has given almost all the API's to make server call and to receive response.
+// internally they also use GSON to do the parsing.
+// you can go through this link you will get more info http://vickychijwani.me/retrofit-vs-volley/
 public class NetworkHelper {
 
     public static URL buildUrl() {
