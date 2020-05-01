@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Backing Time</string>
+    <string name="error_msg">Could not load recipes!\nPlease check your internet connection</string>
 </resources>
