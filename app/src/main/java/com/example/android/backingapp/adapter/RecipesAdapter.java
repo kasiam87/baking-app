@@ -75,11 +75,12 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.RecipeVi
     }
 
     public void setRecipes(List<Recipe> recipes) {
-        this.recipes = recipes;
-
-        for (Recipe r: this.recipes){
-            Log.d("Adapter", "recipe title " + r.getName());
+        if (recipes == null) {
+            this.recipes = new ArrayList<>();
+        } else {
+            this.recipes = recipes;
         }
+
         notifyDataSetChanged();
     }
 

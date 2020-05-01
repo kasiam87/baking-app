@@ -21,6 +21,7 @@ import com.example.android.backingapp.databinding.ActivityMainBinding;
 import com.google.gson.Gson;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
@@ -32,8 +33,9 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     private static final int COLUMNS_NUMBER_PORTRAIT = 1;
     private static final int COLUMNS_NUMBER_LANDSCAPE = 3;
 
+    private static final String RECIPE_ADAPTER_BUNDLE_KEY = "RecipeBundleKey";
+
     private static final int RECIPES_LOADER_ID = 1;
-    private static final String LOADER_PATH_KEY = "loader_path";
 
     public static final String RECIPE_OBJECT = "RecipeObject";
 
@@ -55,30 +57,17 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
         binding.recipesRecyclerView.setHasFixedSize(true);
         recipesAdapter = new RecipesAdapter(this);
 
-
-        loadRecipes();
-
-//        if (savedInstanceState == null) {
-//            loadRecipes();
-//        } else {
-////            loadingIndicator.setVisibility(View.INVISIBLE);
-////            ArrayList<Result> movies = savedInstanceState.getParcelableArrayList(MOVIE_ADAPTER_BUNDLE_KEY);
-////            movieAdapter.setMovies(movies);
-////            showMoviesOrError(movies, savedInstanceState.getString(ERROR_BUNDLE_KEY));
-//        }
+        if (savedInstanceState == null) {
+            loadRecipesView();
+        } else {
+            restoreRecipesView(savedInstanceState);
+        }
         binding.recipesRecyclerView.setAdapter(recipesAdapter);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle bundle) {
-        super.onSaveInstanceState(bundle);
-//        bundle.putParcelableArrayList(MOVIE_ADAPTER_BUNDLE_KEY, movieAdapter.getMovies());
-//        bundle.putString(ERROR_BUNDLE_KEY, errorMsg.getText().toString());
-    }
-
-    private void loadRecipes() {
+    private void loadRecipesView() {
         LoaderManager loaderManager = LoaderManager.getInstance(this);
-        
+
         Bundle queryBundle = new Bundle();
         Loader<List<Recipe>> recipesLoader = loaderManager.getLoader(RECIPES_LOADER_ID);
         if (recipesLoader == null) {
@@ -88,6 +77,28 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
         }
     }
 
+    private void restoreRecipesView(Bundle savedInstanceState) {
+        binding.loadingIndicator.setVisibility(View.INVISIBLE);
+
+        ArrayList<Recipe> recipes = savedInstanceState.getParcelableArrayList(RECIPE_ADAPTER_BUNDLE_KEY);
+        recipesAdapter.setRecipes(recipes);
+
+        if (recipes != null && !recipes.isEmpty()) {
+            recipesAdapter.setRecipes(recipes);
+            binding.recipesRecyclerView.setVisibility(View.VISIBLE);
+            binding.errorMsg.setVisibility(View.INVISIBLE);
+        } else {
+            binding.errorMsg.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        bundle.putParcelableArrayList(RECIPE_ADAPTER_BUNDLE_KEY, recipesAdapter.getRecipes());
+    }
+
+    @NonNull
     @Override
     public Loader<List<Recipe>> onCreateLoader(int id, final Bundle args) {
         return new AsyncTaskLoader<List<Recipe>>(this) {
@@ -127,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
         } else {
             Log.d(TAG, "No recipe available!");
             binding.recipesRecyclerView.setVisibility(View.INVISIBLE);
-            binding.errorMsg.setText("No recipe available");
             binding.errorMsg.setVisibility(View.VISIBLE);
         }
     }
