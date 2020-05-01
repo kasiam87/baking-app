@@ -1,31 +1,26 @@
 package com.example.android.backingapp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.android.backingapp.adapter.RecipesAdapter;
 import com.example.android.backingapp.api.JsonParser;
 import com.example.android.backingapp.api.NetworkHelper;
 import com.example.android.backingapp.api.model.Recipe;
+import com.example.android.backingapp.databinding.ActivityMainBinding;
 import com.google.gson.Gson;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
@@ -42,28 +37,22 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
 
     public static final String RECIPE_OBJECT = "RecipeObject";
 
-    private RecyclerView recipesRecyclerView;
     private RecipesAdapter recipesAdapter;
 
-    private TextView errorMsg;
-    private ProgressBar loadingIndicator;
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        recipesRecyclerView = findViewById(R.id.recipes_recycler_view);
-
-        errorMsg = findViewById(R.id.error_msg);
-        loadingIndicator = findViewById(R.id.loading_indicator);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         Configuration config = this.getResources().getConfiguration();
         int columns = config.orientation == ORIENTATION_PORTRAIT ? COLUMNS_NUMBER_PORTRAIT : COLUMNS_NUMBER_LANDSCAPE;
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, columns);
-        recipesRecyclerView.setLayoutManager(layoutManager);
-        recipesRecyclerView.setHasFixedSize(true);
+        binding.recipesRecyclerView.setLayoutManager(layoutManager);
+        binding.recipesRecyclerView.setHasFixedSize(true);
         recipesAdapter = new RecipesAdapter(this);
 
 
@@ -77,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
 ////            movieAdapter.setMovies(movies);
 ////            showMoviesOrError(movies, savedInstanceState.getString(ERROR_BUNDLE_KEY));
 //        }
-        recipesRecyclerView.setAdapter(recipesAdapter);
+        binding.recipesRecyclerView.setAdapter(recipesAdapter);
     }
 
     @Override
@@ -88,9 +77,9 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     }
 
     private void loadRecipes() {
+        LoaderManager loaderManager = LoaderManager.getInstance(this);
+        
         Bundle queryBundle = new Bundle();
-
-        LoaderManager loaderManager = getSupportLoaderManager();
         Loader<List<Recipe>> recipesLoader = loaderManager.getLoader(RECIPES_LOADER_ID);
         if (recipesLoader == null) {
             loaderManager.initLoader(RECIPES_LOADER_ID, queryBundle, this).forceLoad();
@@ -108,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
                 if (args == null) {
                     return;
                 }
-                loadingIndicator.setVisibility(View.VISIBLE);
+                binding.loadingIndicator.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -130,16 +119,16 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
 
     @Override
     public void onLoadFinished(@NonNull Loader<List<Recipe>> loader, List<Recipe> recipes) {
-        loadingIndicator.setVisibility(View.INVISIBLE);
+        binding.loadingIndicator.setVisibility(View.INVISIBLE);
         recipesAdapter.setRecipes(recipes);
         if (recipes != null && !recipes.isEmpty()) {
-            recipesRecyclerView.setVisibility(View.VISIBLE);
-            errorMsg.setVisibility(View.INVISIBLE);
+            binding.recipesRecyclerView.setVisibility(View.VISIBLE);
+            binding.errorMsg.setVisibility(View.INVISIBLE);
         } else {
             Log.d(TAG, "No recipe available!");
-            recipesRecyclerView.setVisibility(View.INVISIBLE);
-            errorMsg.setText("No recipe available");
-            errorMsg.setVisibility(View.VISIBLE);
+            binding.recipesRecyclerView.setVisibility(View.INVISIBLE);
+            binding.errorMsg.setText("No recipe available");
+            binding.errorMsg.setVisibility(View.VISIBLE);
         }
     }
 
