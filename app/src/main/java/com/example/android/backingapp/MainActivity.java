@@ -73,16 +73,19 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     }
 
     private void restoreRecipesView(Bundle savedInstanceState) {
-        binding.loadingIndicator.setVisibility(View.INVISIBLE);
-
         ArrayList<Recipe> recipes = savedInstanceState.getParcelableArrayList(RECIPE_ADAPTER_BUNDLE_KEY);
-        recipesAdapter.setRecipes(recipes);
+        showResult(recipes);
+    }
 
+    private void showResult(List<Recipe> recipes) {
+        binding.loadingIndicator.setVisibility(View.INVISIBLE);
         if (recipes != null && !recipes.isEmpty()) {
             recipesAdapter.setRecipes(recipes);
             binding.recipesRecyclerView.setVisibility(View.VISIBLE);
             binding.errorMsg.setVisibility(View.INVISIBLE);
         } else {
+            Log.d(TAG, "No recipe available!");
+            binding.recipesRecyclerView.setVisibility(View.INVISIBLE);
             binding.errorMsg.setVisibility(View.VISIBLE);
         }
     }
@@ -101,21 +104,11 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
 
     @Override
     public void onLoadFinished(@NonNull Loader<List<Recipe>> loader, List<Recipe> recipes) {
-        binding.loadingIndicator.setVisibility(View.INVISIBLE);
-        recipesAdapter.setRecipes(recipes);
-        if (recipes != null && !recipes.isEmpty()) {
-            binding.recipesRecyclerView.setVisibility(View.VISIBLE);
-            binding.errorMsg.setVisibility(View.INVISIBLE);
-        } else {
-            Log.d(TAG, "No recipe available!");
-            binding.recipesRecyclerView.setVisibility(View.INVISIBLE);
-            binding.errorMsg.setVisibility(View.VISIBLE);
-        }
+        showResult(recipes);
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<List<Recipe>> loader) {
-
     }
 
     @Override
