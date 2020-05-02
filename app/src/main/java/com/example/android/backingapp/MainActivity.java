@@ -14,13 +14,11 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.android.backingapp.adapter.RecipesAdapter;
-import com.example.android.backingapp.api.JsonParser;
-import com.example.android.backingapp.api.NetworkHelper;
+import com.example.android.backingapp.api.http.RecipesApiClient;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.databinding.ActivityMainBinding;
 import com.google.gson.Gson;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,13 +111,8 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
 
             @Override
             public List<Recipe> loadInBackground() {
-
-                URL recipesUrl = NetworkHelper.buildUrl();
-
-                Log.d(TAG, "Perform api call!\n" + recipesUrl.toString());
                 try {
-                    String recipesJson = NetworkHelper.getResponseFromHttpUrl(recipesUrl);
-                    return JsonParser.getRecipes(recipesJson);
+                    return new RecipesApiClient().getRecipes();
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
