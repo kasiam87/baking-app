@@ -3,7 +3,6 @@ package com.example.android.backingapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.loader.app.LoaderManager;
-import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.GridLayoutManager;
 
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.android.backingapp.adapter.RecipesAdapter;
-import com.example.android.backingapp.api.http.RecipesApiClient;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.databinding.ActivityMainBinding;
 import com.google.gson.Gson;
@@ -66,12 +64,11 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     private void loadRecipesView() {
         LoaderManager loaderManager = LoaderManager.getInstance(this);
 
-        Bundle queryBundle = new Bundle();
         Loader<List<Recipe>> recipesLoader = loaderManager.getLoader(RECIPES_LOADER_ID);
         if (recipesLoader == null) {
-            loaderManager.initLoader(RECIPES_LOADER_ID, queryBundle, this).forceLoad();
+            loaderManager.initLoader(RECIPES_LOADER_ID, null, this).forceLoad();
         } else {
-            loaderManager.restartLoader(RECIPES_LOADER_ID, queryBundle, this).forceLoad();
+            loaderManager.restartLoader(RECIPES_LOADER_ID, null, this).forceLoad();
         }
     }
 
@@ -99,26 +96,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     @NonNull
     @Override
     public Loader<List<Recipe>> onCreateLoader(int id, final Bundle args) {
-        return new AsyncTaskLoader<List<Recipe>>(this) {
-
-            @Override
-            protected void onStartLoading() {
-                if (args == null) {
-                    return;
-                }
-                binding.loadingIndicator.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public List<Recipe> loadInBackground() {
-                try {
-                    return new RecipesApiClient().getRecipes();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        };
+        return new RecipesAsyncLoader(this, binding.loadingIndicator);
     }
 
     @Override
