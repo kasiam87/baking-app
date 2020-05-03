@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
 
     @Override
     public void onClick(Recipe recipe) {
-        Intent recipeIntent = new Intent(this, RecipeDetailsActivity.class);
+        Intent recipeIntent = new Intent(this, StepsActivity.class);
         recipeIntent.putExtra(RECIPE_OBJECT, new Gson().toJson(recipe));
         startActivity(recipeIntent);
     }

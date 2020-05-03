@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".StepDetailsActivity"/>
-        <activity android:name=".RecipeDetailsActivity" />
+        <activity android:name=".StepsActivity" />
         <activity android:name=".fragment.StepDetailsFragment" />
         <activity android:name=".fragment.MasterListFragment" />
         <activity android:name=".MainActivity">
