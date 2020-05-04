@@ -4,29 +4,20 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
 
 public class MasterListAdapter extends BaseAdapter {
 
-    // Keeps track of the context and list of images to display
     private Context context;
     private List<String> steps;
 
-    /**
-     * Constructor method
-     * @param steps The list of images to display
-     */
     public MasterListAdapter(Context context, List<String> steps) {
         this.context = context;
         this.steps = steps;
     }
 
-    /**
-     * Returns the number of items the adapter will display
-     */
     @Override
     public int getCount() {
         return steps.size();

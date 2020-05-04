@@ -1,4 +1,4 @@
-package com.example.android.backingapp;
+package com.example.android.backingapp.loader;
 
 import android.content.Context;
 import android.view.View;
@@ -16,7 +16,7 @@ public class RecipesAsyncLoader extends AsyncTaskLoader<List<Recipe>> {
 
     private ProgressBar loadingIndicator;
 
-    RecipesAsyncLoader(@NonNull Context context, ProgressBar loadingIndicator) {
+    public RecipesAsyncLoader(@NonNull Context context, ProgressBar loadingIndicator) {
         super(context);
         this.loadingIndicator = loadingIndicator;
     }

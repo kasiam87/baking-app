@@ -15,6 +15,7 @@ import android.view.View;
 import com.example.android.backingapp.adapter.RecipesAdapter;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.databinding.ActivityMainBinding;
+import com.example.android.backingapp.loader.RecipesAsyncLoader;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -29,11 +30,10 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     private static final int COLUMNS_NUMBER_PORTRAIT = 1;
     private static final int COLUMNS_NUMBER_LANDSCAPE = 3;
 
-    private static final String RECIPE_ADAPTER_BUNDLE_KEY = "RecipeBundleKey";
+    private static final String RECIPES_BUNDLE_KEY = "RecipesBundleKey";
+    public static final String RECIPE_JSON = "RecipeJson";
 
     private static final int RECIPES_LOADER_ID = 1;
-
-    public static final String RECIPE_OBJECT = "RecipeObject";
 
     private RecipesAdapter recipesAdapter;
 
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     }
 
     private void restoreRecipesView(Bundle savedInstanceState) {
-        ArrayList<Recipe> recipes = savedInstanceState.getParcelableArrayList(RECIPE_ADAPTER_BUNDLE_KEY);
+        ArrayList<Recipe> recipes = savedInstanceState.getParcelableArrayList(RECIPES_BUNDLE_KEY);
         showResult(recipes);
     }
 
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     @Override
     protected void onSaveInstanceState(@NonNull Bundle bundle) {
         super.onSaveInstanceState(bundle);
-        bundle.putParcelableArrayList(RECIPE_ADAPTER_BUNDLE_KEY, recipesAdapter.getRecipes());
+        bundle.putParcelableArrayList(RECIPES_BUNDLE_KEY, recipesAdapter.getRecipes());
     }
 
     @NonNull
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     @Override
     public void onClick(Recipe recipe) {
         Intent recipeIntent = new Intent(this, StepsActivity.class);
-        recipeIntent.putExtra(RECIPE_OBJECT, new Gson().toJson(recipe));
+        recipeIntent.putExtra(RECIPE_JSON, new Gson().toJson(recipe));
         startActivity(recipeIntent);
     }
 }

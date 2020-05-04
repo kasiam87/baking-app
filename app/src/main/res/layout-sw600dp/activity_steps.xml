@@ -7,24 +7,31 @@
     <fragment
         android:id="@+id/master_list_fragment"
         android:name="com.example.android.backingapp.fragment.MasterListFragment"
-        android:layout_width="match_parent"
+        android:layout_width="400dp"
         android:layout_height="match_parent" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <View
+        android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:id="@+id/step_details" >
+        android:background="@android:color/darker_gray"/>
 
-        <TextView
+    <LinearLayout
+        android:id="@+id/step_details_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
             android:id="@+id/video_player"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:padding="16dp" />
 
-        <TextView
+        <FrameLayout
             android:id="@+id/recipe_instructions"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:padding="16dp" />
 
     </LinearLayout>
 

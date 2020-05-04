@@ -5,43 +5,35 @@ import androidx.fragment.app.Fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.TextView;
 
-import com.example.android.backingapp.MainActivity;
 import com.example.android.backingapp.R;
 import com.example.android.backingapp.StepsActivity;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.api.model.Step;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class MasterListFragment extends Fragment {
 
-    public MasterListFragment() {
-    }
+    private static final String TAG = MasterListFragment.class.getSimpleName();
 
-    // Define a new interface OnStepClickListener that triggers a callback in the host activity
     OnStepClickListener callback;
     Recipe recipe;
     String ingredients;
     ArrayList<String> stepDescriptions = new ArrayList<>();
 
-    // OnRecipeClickListener interface, calls a method in the host activity named onStepSelected
+    public MasterListFragment() {
+    }
+
     public interface OnStepClickListener {
         void onStepSelected(int position);
     }
 
-    // Override onAttach to make sure that the container activity has implemented the callback
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -62,21 +54,19 @@ public class MasterListFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            Log.d("masterListFragemnt", "BUNDLE###");
             recipe = bundle.getParcelable(StepsActivity.RECIPE_BUNDLE_KEY);
-            Log.d("masterListFragemnt", "recipe name: " + recipe.getName());
+            Log.d(TAG, "recipe name: " + recipe.getName());
 
-            stepDescriptions.add("Ingredients");
-            for (Step step: recipe.getSteps()){
-            stepDescriptions.add(step.getShortDescription());
-        }
+//            stepDescriptions.add("Ingredients");
+            for (Step step : recipe.getSteps()) {
+                stepDescriptions.add(step.getShortDescription());
+            }
         }
     }
 
     // Inflates the List of steps
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.fragment_master_list, container, false);
 
@@ -84,23 +74,11 @@ public class MasterListFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.step);
 
         // Create the adapter
-        // This adapter takes in the context and an ArrayList of ALL the image resources to display
-
         MasterListAdapter mAdapter = new MasterListAdapter(getContext(), stepDescriptions);
 
-        // Set the adapter on the GridView
         gridView.setAdapter(mAdapter);
+        gridView.setOnItemClickListener((adapterView, view, position, l) -> callback.onStepSelected(position));
 
-        // Set a click listener on the gridView and trigger the callback onImageSelected when an item is clicked
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // Trigger the callback method and pass in the position that was clicked
-                callback.onStepSelected(position);
-            }
-        });
-
-        // Return the root view
         return rootView;
     }
 }

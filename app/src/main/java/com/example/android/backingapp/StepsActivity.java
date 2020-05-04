@@ -1,11 +1,11 @@
 package com.example.android.backingapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.fragment.MasterListFragment;
@@ -17,13 +17,18 @@ import java.util.ArrayList;
 public class StepsActivity extends AppCompatActivity implements MasterListFragment.OnStepClickListener {
 
     /// TODO Should be a recycler view
+    // TODO save and restore state
 
-    public static final String STEP_BUNDLE_KEY = "StepBundleKey";
-    public static final String INGREDIENTS_BUNDLE_KEY = "IngredientsBundleKey";
-    public static final String SERVINGS_BUNDLE_KEY = "ServingsBundleKey";
     public static final String RECIPE_BUNDLE_KEY = "RecipeBundleKey";
 
-    boolean displayTwoPane;
+    public static final String STEP_BUNDLE_KEY = "StepBundleKey";
+    public static final String STEP_VIDEO_BUNDLE_KEY = "StepVideoBundleKey";
+    public static final String STEP_INSTRUCTIONS_BUNDLE_KEY = "StepInstructionsBundleKey";
+
+    public static final String INGREDIENTS_BUNDLE_KEY = "IngredientsBundleKey";
+    public static final String SERVINGS_BUNDLE_KEY = "ServingsBundleKey";
+
+    boolean tabletDisplay;
 
     private Recipe recipe;
 
@@ -32,22 +37,19 @@ public class StepsActivity extends AppCompatActivity implements MasterListFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_steps);
 
-        displayTwoPane = findViewById(R.id.step_details) != null;
+        tabletDisplay = findViewById(R.id.step_details_linear_layout) != null;
 
         Intent intent = getIntent();
         if (intent != null) {
-            Log.d("StepActivity", "INTENT NOT NULL");
-            if (intent.hasExtra(MainActivity.RECIPE_OBJECT)) {
-                Log.d("StepActivity", "HAS EXTRA");
-                String recipeObject = intent.getStringExtra(MainActivity.RECIPE_OBJECT);
-                recipe = new Gson().fromJson(recipeObject, Recipe.class);
+            if (intent.hasExtra(MainActivity.RECIPE_JSON)) {
+                String recipeJson = intent.getStringExtra(MainActivity.RECIPE_JSON);
+                recipe = new Gson().fromJson(recipeJson, Recipe.class);
 
                 MasterListFragment masterListFragment = new MasterListFragment();
 
                 getSupportFragmentManager().beginTransaction()
                         .add(android.R.id.content, masterListFragment).commit();
 
-                Log.d("StepActivity", "Set arguments");
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(RECIPE_BUNDLE_KEY, recipe);
                 masterListFragment.setArguments(bundle);
@@ -58,21 +60,33 @@ public class StepsActivity extends AppCompatActivity implements MasterListFragme
     @Override
     public void onStepSelected(int position) {
 
-        if (displayTwoPane){
-            StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
-            stepDetailsFragment.setListIndex(position);
+        if (tabletDisplay){
+            FragmentManager fragmentManager = getSupportFragmentManager();
+
+            StepDetailsFragment videoFragment = new StepDetailsFragment();
+            videoFragment.setStepDetails(recipe.getSteps().get(position).getVideoURL());
+            fragmentManager.beginTransaction()
+                    .replace(R.id.video_player, videoFragment)
+                    .commit();
+
+            StepDetailsFragment instructionsFragment = new StepDetailsFragment();
+            instructionsFragment.setStepDetails(recipe.getSteps().get(position).getDescription());
+            fragmentManager.beginTransaction()
+                    .replace(R.id.recipe_instructions, instructionsFragment)
+                    .commit();
         } else {
 
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(STEP_BUNDLE_KEY, recipe.getSteps().get(position));
+            bundle.putString(STEP_VIDEO_BUNDLE_KEY, recipe.getSteps().get(position).getVideoURL());
+            bundle.putString(STEP_INSTRUCTIONS_BUNDLE_KEY, recipe.getSteps().get(position).getDescription());
+            bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getIngredients());
+            bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
+
+            final Intent intent = new Intent(this, StepDetailsActivity.class);
+            intent.putExtras(bundle);
+
+            startActivity(intent);
         }
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(STEP_BUNDLE_KEY, recipe.getSteps().get(position));
-        bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getIngredients());
-        bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
-
-        final Intent intent = new Intent(this, StepDetailsActivity.class);
-        intent.putExtras(bundle);
-
-        startActivity(intent);
     }
 }
