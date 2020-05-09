@@ -5,7 +5,6 @@ import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.example.android.backingapp.api.model.Ingredient;
 import com.example.android.backingapp.databinding.ActivityStepDetailsBinding;
@@ -13,11 +12,11 @@ import com.example.android.backingapp.fragment.StepDetailsFragment;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 public class StepDetailsActivity extends AppCompatActivity {
 
     // TODO save and restore state
-
-    private static final String TAG = StepDetailsActivity.class.getSimpleName();
 
     private List<Ingredient> ingredients;
     private int servings;
@@ -35,7 +34,7 @@ public class StepDetailsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null) {
-            Log.d(TAG, "Intent not null");
+            Timber.d("Intent not null");
 
             if (intent.hasExtra(StepsActivity.STEP_VIDEO_BUNDLE_KEY)) {
                 videoURL = intent.getStringExtra(StepsActivity.STEP_VIDEO_BUNDLE_KEY);

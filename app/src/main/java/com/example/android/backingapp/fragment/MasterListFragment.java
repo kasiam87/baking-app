@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +17,9 @@ import com.example.android.backingapp.api.model.Step;
 
 import java.util.ArrayList;
 
-public class MasterListFragment extends Fragment {
+import timber.log.Timber;
 
-    private static final String TAG = MasterListFragment.class.getSimpleName();
+public class MasterListFragment extends Fragment {
 
     OnStepClickListener callback;
     Recipe recipe;
@@ -55,7 +54,7 @@ public class MasterListFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             recipe = bundle.getParcelable(StepsActivity.RECIPE_BUNDLE_KEY);
-            Log.d(TAG, "recipe name: " + recipe.getName());
+            Timber.d("recipe name: %s", recipe.getName());
 
 //            stepDescriptions.add("Ingredients");
             for (Step step : recipe.getSteps()) {

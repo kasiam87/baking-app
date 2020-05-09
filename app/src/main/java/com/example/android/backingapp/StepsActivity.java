@@ -60,7 +60,7 @@ public class StepsActivity extends AppCompatActivity implements MasterListFragme
     @Override
     public void onStepSelected(int position) {
 
-        if (tabletDisplay){
+        if (tabletDisplay) {
             FragmentManager fragmentManager = getSupportFragmentManager();
 
             StepDetailsFragment videoFragment = new StepDetailsFragment();

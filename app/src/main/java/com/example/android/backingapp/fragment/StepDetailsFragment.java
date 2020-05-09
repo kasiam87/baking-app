@@ -13,8 +13,6 @@ import com.example.android.backingapp.R;
 
 public class StepDetailsFragment extends Fragment {
 
-    private static final String TAG = StepDetailsFragment.class.getSimpleName();
-
     private String stepDetail;
 
     public StepDetailsFragment() {

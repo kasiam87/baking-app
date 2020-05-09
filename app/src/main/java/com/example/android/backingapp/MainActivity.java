@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import com.example.android.backingapp.adapter.RecipesAdapter;
@@ -21,12 +20,13 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
 public class MainActivity extends AppCompatActivity implements RecipesAdapter.RecipeAdapterOnClickHandler,
         LoaderManager.LoaderCallbacks<List<Recipe>> {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int COLUMNS_NUMBER_PORTRAIT = 1;
     private static final int COLUMNS_NUMBER_LANDSCAPE = 3;
 
@@ -42,6 +42,11 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(BuildConfig.DEBUG){
+            Timber.plant(new Timber.DebugTree());
+        }
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -80,11 +85,12 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     private void showResult(List<Recipe> recipes) {
         binding.loadingIndicator.setVisibility(View.INVISIBLE);
         if (recipes != null && !recipes.isEmpty()) {
+            Timber.d("Show recipes");
             recipesAdapter.setRecipes(recipes);
             binding.recipesRecyclerView.setVisibility(View.VISIBLE);
             binding.errorMsg.setVisibility(View.INVISIBLE);
         } else {
-            Log.d(TAG, "No recipe available!");
+            Timber.d("No recipe available!");
             binding.recipesRecyclerView.setVisibility(View.INVISIBLE);
             binding.errorMsg.setVisibility(View.VISIBLE);
         }
