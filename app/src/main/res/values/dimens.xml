@@ -4,4 +4,10 @@
 
     <dimen name="text_error_padding">20dp</dimen>
     <dimen name="text_error_size">20sp</dimen>
+    <dimen name="card_elevation">6dp</dimen>
+    <dimen name="card_corner_radius">6dp</dimen>
+    <dimen name="card_margin">16dp</dimen>
+    <dimen name="card_height">200dp</dimen>
+    <dimen name="recipe_name_text_size">18sp</dimen>
+
 </resources>

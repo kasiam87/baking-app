@@ -26,7 +26,7 @@ public class RecipesAsyncLoader extends AsyncTaskLoader<List<Recipe>> {
         if (loadingIndicator == null) {
             return;
         }
-        loadingIndicator.setVisibility(View.VISIBLE);
+//        loadingIndicator.setVisibility(View.VISIBLE);
     }
 
     @Override

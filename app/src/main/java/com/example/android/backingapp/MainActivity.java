@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements RecipesAdapter.Re
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
 
