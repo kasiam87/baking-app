@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.example.android.backingapp.api.model.Recipe;
+import com.example.android.backingapp.api.model.Step;
 import com.example.android.backingapp.fragment.MasterListFragment;
 import com.example.android.backingapp.fragment.StepDetailsFragment;
 import com.google.gson.Gson;
@@ -58,28 +59,27 @@ public class StepsActivity extends AppCompatActivity implements MasterListFragme
     }
 
     @Override
-    public void onStepSelected(int position) {
-
+    public void onStepSelected(Step step) {
         if (tabletDisplay) {
             FragmentManager fragmentManager = getSupportFragmentManager();
 
             StepDetailsFragment videoFragment = new StepDetailsFragment();
-            videoFragment.setStepDetails(recipe.getSteps().get(position).getVideoURL());
+            videoFragment.setStepDetails(step.getVideoURL());
             fragmentManager.beginTransaction()
                     .replace(R.id.video_player, videoFragment)
                     .commit();
 
             StepDetailsFragment instructionsFragment = new StepDetailsFragment();
-            instructionsFragment.setStepDetails(recipe.getSteps().get(position).getDescription());
+            instructionsFragment.setStepDetails(step.getDescription());
             fragmentManager.beginTransaction()
                     .replace(R.id.recipe_instructions, instructionsFragment)
                     .commit();
         } else {
 
             Bundle bundle = new Bundle();
-            bundle.putParcelable(STEP_BUNDLE_KEY, recipe.getSteps().get(position));
-            bundle.putString(STEP_VIDEO_BUNDLE_KEY, recipe.getSteps().get(position).getVideoURL());
-            bundle.putString(STEP_INSTRUCTIONS_BUNDLE_KEY, recipe.getSteps().get(position).getDescription());
+            bundle.putParcelable(STEP_BUNDLE_KEY, step);
+            bundle.putString(STEP_VIDEO_BUNDLE_KEY, step.getVideoURL());
+            bundle.putString(STEP_INSTRUCTIONS_BUNDLE_KEY, step.getDescription());
             bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getIngredients());
             bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
 

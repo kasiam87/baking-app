@@ -11,6 +11,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.android.backingapp.adapter.RecipeAdapterOnClickHandler;
 import com.example.android.backingapp.adapter.RecipesAdapter;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.databinding.ActivityMainBinding;
@@ -24,7 +25,7 @@ import timber.log.Timber;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
-public class MainActivity extends AppCompatActivity implements RecipesAdapter.RecipeAdapterOnClickHandler,
+public class MainActivity extends AppCompatActivity implements RecipeAdapterOnClickHandler,
         LoaderManager.LoaderCallbacks<List<Recipe>> {
 
     private static final int COLUMNS_NUMBER_PORTRAIT = 1;

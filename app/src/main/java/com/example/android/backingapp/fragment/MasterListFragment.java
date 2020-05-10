@@ -1,17 +1,21 @@
 package com.example.android.backingapp.fragment;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 
 import com.example.android.backingapp.R;
 import com.example.android.backingapp.StepsActivity;
+import com.example.android.backingapp.adapter.StepAdapterOnClickHandler;
+import com.example.android.backingapp.adapter.StepsAdapter;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.api.model.Step;
 
@@ -19,32 +23,30 @@ import java.util.ArrayList;
 
 import timber.log.Timber;
 
-public class MasterListFragment extends Fragment {
+public class MasterListFragment extends Fragment implements StepAdapterOnClickHandler {
 
-    OnStepClickListener callback;
     Recipe recipe;
     String ingredients;
-    ArrayList<String> stepDescriptions = new ArrayList<>();
+    ArrayList<Step> steps = new ArrayList<>();
+
+    OnStepClickListener callback;
+
+    private RecyclerView stepsRecyclerView;
+    private StepsAdapter stepsAdapter;
 
     public MasterListFragment() {
     }
 
-    public interface OnStepClickListener {
-        void onStepSelected(int position);
-    }
-
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        // This makes sure that the host activity has implemented the callback interface
-        // If not, it throws an exception
         try {
             callback = (OnStepClickListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnStepClickListener");
+            throw new ClassCastException(context.toString() + " should implement OnStepClickListener");
         }
+
     }
 
     @Override
@@ -57,27 +59,30 @@ public class MasterListFragment extends Fragment {
             Timber.d("recipe name: %s", recipe.getName());
 
 //            stepDescriptions.add("Ingredients");
-            for (Step step : recipe.getSteps()) {
-                stepDescriptions.add(step.getShortDescription());
-            }
+            steps.addAll(recipe.getSteps());
         }
     }
 
-    // Inflates the List of steps
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.activity_steps, container, false);
 
-        final View rootView = inflater.inflate(R.layout.fragment_master_list, container, false);
-
-        // Get a reference to the text view in the fragment_master_list xml layout file
-        GridView gridView = (GridView) rootView.findViewById(R.id.step);
-
-        // Create the adapter
-        MasterListAdapter mAdapter = new MasterListAdapter(getContext(), stepDescriptions);
-
-        gridView.setAdapter(mAdapter);
-        gridView.setOnItemClickListener((adapterView, view, position, l) -> callback.onStepSelected(position));
-
+        stepsRecyclerView = rootView.findViewById(R.id.master_list_recycler_view);
+        stepsRecyclerView.setHasFixedSize(true);
+        stepsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        stepsAdapter = new StepsAdapter(this);
+        stepsAdapter.setSteps(steps);
+        stepsRecyclerView.setAdapter(stepsAdapter);
+//        stepsRecyclerView.setOnClickListener((adapterView, view, position, l) -> callback.onStepSelected(position));
         return rootView;
+    }
+
+    @Override
+    public void onStepSelected(Step step) {
+        callback.onStepSelected(step);
+    }
+
+    public interface OnStepClickListener {
+        void onStepSelected(Step step);
     }
 }

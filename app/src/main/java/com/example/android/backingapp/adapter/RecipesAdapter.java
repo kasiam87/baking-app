@@ -60,10 +60,6 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.RecipeVi
 
     private final RecipeAdapterOnClickHandler recipeClickHandler;
 
-    public interface RecipeAdapterOnClickHandler {
-        void onClick(Recipe movie);
-    }
-
     public RecipesAdapter(RecipeAdapterOnClickHandler clickHandler) {
         recipeClickHandler = clickHandler;
     }

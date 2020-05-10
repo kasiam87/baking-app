@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <fragment
-        android:id="@+id/master_list_fragment"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/master_list_recycler_view"
         android:name="com.example.android.backingapp.fragment.MasterListFragment"
         android:layout_width="400dp"
         android:layout_height="match_parent" />
