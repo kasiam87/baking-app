@@ -85,6 +85,6 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
 
     @Override
     public void onStepSelected(Step step) {
-        callback.onStepSelected(step);
+        callback.onRecipeStepSelected(step);
     }
 }

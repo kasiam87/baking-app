@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.View;
 
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.api.model.Step;
@@ -83,7 +84,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     }
 
     @Override
-    public void onStepSelected(Step step) {
+    public void onRecipeStepSelected(Step step) {
         currentStep = step;
         if (tabletDisplay) {
             showStepDetails(step);
@@ -104,15 +105,25 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
 
     private void showStepDetails(Step step) {
         StepDetailsFragment videoFragment = new StepDetailsFragment();
-        videoFragment.setStepDetails(step.getVideoURL());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.video_player, videoFragment)
-                .commit();
+        if (step.getVideoURL() != null && !step.getVideoURL().isEmpty()) {
+            findViewById(R.id.video_player).setVisibility(View.VISIBLE);
+            videoFragment.setStepDetails(step.getVideoURL());
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.video_player, videoFragment)
+                    .commit();
+        } else {
+            findViewById(R.id.video_player).setVisibility(View.GONE);
+        }
 
-        StepDetailsFragment instructionsFragment = new StepDetailsFragment();
-        instructionsFragment.setStepDetails(step.getDescription());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.recipe_instructions, instructionsFragment)
-                .commit();
+        if (!step.getDescription().equals(step.getShortDescription())){
+            findViewById(R.id.recipe_instructions).setVisibility(View.VISIBLE);
+            StepDetailsFragment instructionsFragment = new StepDetailsFragment();
+            instructionsFragment.setStepDetails(step.getDescription());
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.recipe_instructions, instructionsFragment)
+                    .commit();
+        } else {
+            findViewById(R.id.recipe_instructions).setVisibility(View.GONE);
+        }
     }
 }
