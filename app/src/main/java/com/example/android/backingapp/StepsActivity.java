@@ -10,6 +10,7 @@ import android.os.Parcelable;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.api.model.Step;
 import com.example.android.backingapp.fragment.MasterListFragment;
+import com.example.android.backingapp.fragment.OnRecipeStepClickListener;
 import com.example.android.backingapp.fragment.StepDetailsFragment;
 import com.google.gson.Gson;
 
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 
 import timber.log.Timber;
 
-public class StepsActivity extends AppCompatActivity implements MasterListFragment.OnStepClickListener {
+public class StepsActivity extends AppCompatActivity implements OnRecipeStepClickListener {
 
     public static final String RECIPE_BUNDLE_KEY = "RecipeBundleKey";
     public static final String RECIPE_BUNDLE_SAVED_KEY = "RecipeBundleSavedKey";

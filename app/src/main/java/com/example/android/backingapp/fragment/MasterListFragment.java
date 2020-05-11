@@ -21,8 +21,6 @@ import com.example.android.backingapp.api.model.Step;
 
 import java.util.ArrayList;
 
-import timber.log.Timber;
-
 public class MasterListFragment extends Fragment implements StepAdapterOnClickHandler {
 
     private static final String STEPS_BUNDLE_KEY = "StepsBundleKey";
@@ -30,7 +28,7 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
     String ingredients;
     private ArrayList<Step> steps = new ArrayList<>();
 
-    private OnStepClickListener callback;
+    private OnRecipeStepClickListener callback;
 
     private StepsAdapter stepsAdapter;
 
@@ -42,7 +40,7 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
         super.onAttach(context);
 
         try {
-            callback = (OnStepClickListener) context;
+            callback = (OnRecipeStepClickListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " should implement OnStepClickListener");
         }
@@ -88,9 +86,5 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
     @Override
     public void onStepSelected(Step step) {
         callback.onStepSelected(step);
-    }
-
-    public interface OnStepClickListener {
-        void onStepSelected(Step step);
     }
 }
