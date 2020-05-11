@@ -1,7 +1,7 @@
 package com.example.android.backingapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,12 +15,13 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 public class StepsActivity extends AppCompatActivity implements MasterListFragment.OnStepClickListener {
 
-    /// TODO Should be a recycler view
-    // TODO save and restore state
-
     public static final String RECIPE_BUNDLE_KEY = "RecipeBundleKey";
+    public static final String RECIPE_BUNDLE_SAVED_KEY = "RecipeBundleSavedKey";
+    public static final String STEP_BUNDLE_SAVED_KEY = "StepBundleSavedKey";
 
     public static final String STEP_BUNDLE_KEY = "StepBundleKey";
     public static final String STEP_VIDEO_BUNDLE_KEY = "StepVideoBundleKey";
@@ -32,6 +33,7 @@ public class StepsActivity extends AppCompatActivity implements MasterListFragme
     boolean tabletDisplay;
 
     private Recipe recipe;
+    private Step currentStep;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,42 +42,51 @@ public class StepsActivity extends AppCompatActivity implements MasterListFragme
 
         tabletDisplay = findViewById(R.id.step_details_linear_layout) != null;
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            if (intent.hasExtra(MainActivity.RECIPE_JSON)) {
-                String recipeJson = intent.getStringExtra(MainActivity.RECIPE_JSON);
-                recipe = new Gson().fromJson(recipeJson, Recipe.class);
+        if (savedInstanceState == null) {
+            Timber.d(">>Load new");
 
-                MasterListFragment masterListFragment = new MasterListFragment();
+            Intent intent = getIntent();
+            if (intent != null) {
+                if (intent.hasExtra(MainActivity.RECIPE_JSON)) {
+                    String recipeJson = intent.getStringExtra(MainActivity.RECIPE_JSON);
+                    recipe = new Gson().fromJson(recipeJson, Recipe.class);
+                }
+            }
 
-                getSupportFragmentManager().beginTransaction()
-                        .add(android.R.id.content, masterListFragment).commit();
-
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(RECIPE_BUNDLE_KEY, recipe);
-                masterListFragment.setArguments(bundle);
+        } else {
+            Timber.d(">>Load saved");
+            recipe = savedInstanceState.getParcelable(RECIPE_BUNDLE_SAVED_KEY);
+            currentStep = savedInstanceState.getParcelable(STEP_BUNDLE_SAVED_KEY);
+            if (tabletDisplay && currentStep != null) {
+                showStepDetails(currentStep);
             }
         }
+
+        MasterListFragment masterListFragment = new MasterListFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(android.R.id.content, masterListFragment).commit();
+
+        Bundle bundle = new Bundle();
+
+        bundle.putParcelable(RECIPE_BUNDLE_KEY, recipe);
+        masterListFragment.setArguments(bundle);
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        bundle.putParcelable(RECIPE_BUNDLE_SAVED_KEY, recipe);
+        bundle.putParcelable(STEP_BUNDLE_SAVED_KEY, currentStep);
     }
 
     @Override
     public void onStepSelected(Step step) {
+        currentStep = step;
         if (tabletDisplay) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-
-            StepDetailsFragment videoFragment = new StepDetailsFragment();
-            videoFragment.setStepDetails(step.getVideoURL());
-            fragmentManager.beginTransaction()
-                    .replace(R.id.video_player, videoFragment)
-                    .commit();
-
-            StepDetailsFragment instructionsFragment = new StepDetailsFragment();
-            instructionsFragment.setStepDetails(step.getDescription());
-            fragmentManager.beginTransaction()
-                    .replace(R.id.recipe_instructions, instructionsFragment)
-                    .commit();
+            showStepDetails(step);
         } else {
-
             Bundle bundle = new Bundle();
             bundle.putParcelable(STEP_BUNDLE_KEY, step);
             bundle.putString(STEP_VIDEO_BUNDLE_KEY, step.getVideoURL());
@@ -88,5 +99,19 @@ public class StepsActivity extends AppCompatActivity implements MasterListFragme
 
             startActivity(intent);
         }
+    }
+
+    private void showStepDetails(Step step) {
+        StepDetailsFragment videoFragment = new StepDetailsFragment();
+        videoFragment.setStepDetails(step.getVideoURL());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.video_player, videoFragment)
+                .commit();
+
+        StepDetailsFragment instructionsFragment = new StepDetailsFragment();
+        instructionsFragment.setStepDetails(step.getDescription());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.recipe_instructions, instructionsFragment)
+                .commit();
     }
 }

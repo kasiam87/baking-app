@@ -19,11 +19,4 @@
         android:textSize="@dimen/text_error_size"
         android:visibility="invisible" />
 
-    <ProgressBar
-        android:id="@+id/loading_indicator"
-        android:layout_width="@dimen/loading"
-        android:layout_height="@dimen/loading"
-        android:layout_gravity="center"
-        android:visibility="invisible" />
-
 </FrameLayout>

@@ -1,8 +1,6 @@
 package com.example.android.backingapp.loader;
 
 import android.content.Context;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.loader.content.AsyncTaskLoader;
@@ -14,19 +12,8 @@ import java.util.List;
 
 public class RecipesAsyncLoader extends AsyncTaskLoader<List<Recipe>> {
 
-    private ProgressBar loadingIndicator;
-
-    public RecipesAsyncLoader(@NonNull Context context, ProgressBar loadingIndicator) {
+    public RecipesAsyncLoader(@NonNull Context context) {
         super(context);
-        this.loadingIndicator = loadingIndicator;
-    }
-
-    @Override
-    protected void onStartLoading() {
-        if (loadingIndicator == null) {
-            return;
-        }
-//        loadingIndicator.setVisibility(View.VISIBLE);
     }
 
     @Override

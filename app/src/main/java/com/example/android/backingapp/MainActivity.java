@@ -60,8 +60,10 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
         recipesAdapter = new RecipesAdapter(this);
 
         if (savedInstanceState == null) {
+            Timber.d(">>Load new");
             loadRecipesView();
         } else {
+            Timber.d(">>Load saved");
             restoreRecipesView(savedInstanceState);
         }
         binding.recipesRecyclerView.setAdapter(recipesAdapter);
@@ -84,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
     }
 
     private void showResult(List<Recipe> recipes) {
-        binding.loadingIndicator.setVisibility(View.INVISIBLE);
         if (recipes != null && !recipes.isEmpty()) {
             Timber.d("Show recipes");
             recipesAdapter.setRecipes(recipes);
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
     @NonNull
     @Override
     public Loader<List<Recipe>> onCreateLoader(int id, final Bundle args) {
-        return new RecipesAsyncLoader(this, binding.loadingIndicator);
+        return new RecipesAsyncLoader(this);
     }
 
     @Override

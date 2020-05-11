@@ -25,13 +25,13 @@ import timber.log.Timber;
 
 public class MasterListFragment extends Fragment implements StepAdapterOnClickHandler {
 
-    Recipe recipe;
+    private static final String STEPS_BUNDLE_KEY = "StepsBundleKey";
+
     String ingredients;
-    ArrayList<Step> steps = new ArrayList<>();
+    private ArrayList<Step> steps = new ArrayList<>();
 
-    OnStepClickListener callback;
+    private OnStepClickListener callback;
 
-    private RecyclerView stepsRecyclerView;
     private StepsAdapter stepsAdapter;
 
     public MasterListFragment() {
@@ -46,35 +46,43 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " should implement OnStepClickListener");
         }
-
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            recipe = bundle.getParcelable(StepsActivity.RECIPE_BUNDLE_KEY);
-            Timber.d("recipe name: %s", recipe.getName());
-
+        if (savedInstanceState != null){
+            steps = savedInstanceState.getParcelableArrayList(STEPS_BUNDLE_KEY);
+        } else {
+            if (getArguments() != null) {
+                Recipe recipe = getArguments().getParcelable(StepsActivity.RECIPE_BUNDLE_KEY);
 //            stepDescriptions.add("Ingredients");
-            steps.addAll(recipe.getSteps());
+                if (recipe != null) {
+                    steps.addAll(recipe.getSteps());
+                }
+            }
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.activity_steps, container, false);
 
-        stepsRecyclerView = rootView.findViewById(R.id.master_list_recycler_view);
+        RecyclerView stepsRecyclerView = rootView.findViewById(R.id.master_list_recycler_view);
         stepsRecyclerView.setHasFixedSize(true);
         stepsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         stepsAdapter = new StepsAdapter(this);
         stepsAdapter.setSteps(steps);
         stepsRecyclerView.setAdapter(stepsAdapter);
-//        stepsRecyclerView.setOnClickListener((adapterView, view, position, l) -> callback.onStepSelected(position));
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(STEPS_BUNDLE_KEY, stepsAdapter.getSteps());
     }
 
     @Override
