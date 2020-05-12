@@ -38,11 +38,10 @@ public class StepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        View ingredientsView = inflater.inflate(R.layout.fragment_master_list_ingredients, viewGroup, false);
         View stepView = inflater.inflate(R.layout.fragment_master_list, viewGroup, false);
 
         if (viewType == 0) {
-            return new IngredientsViewHolder(ingredientsView);
+            return new IngredientsViewHolder(stepView);
         }
         return new StepViewHolder(stepView);
     }
@@ -91,7 +90,7 @@ public class StepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         IngredientsViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            ingredientsCard = itemView.findViewById(R.id.ingredients);
+            ingredientsCard = itemView.findViewById(R.id.step);
         }
 
         @Override
