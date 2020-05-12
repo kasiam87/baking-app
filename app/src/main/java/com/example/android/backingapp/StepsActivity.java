@@ -30,6 +30,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     public static final String SHOW_INGREDIENTS_BUNDLE_SAVED_KEY = "ShowIngredientsBundleSavedKey";
 
     public static final String STEP_BUNDLE_KEY = "StepBundleKey";
+    public static final String RECIPE_NAME_BUNDLE_KEY = "RecipeNameBundleKey";
 
     public static final String INGREDIENTS_BUNDLE_KEY = "IngredientsBundleKey";
     public static final String SERVINGS_BUNDLE_KEY = "ServingsBundleKey";
@@ -73,6 +74,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
             }
         }
 
+        setTitle(recipe.getName());
         MasterListFragment masterListFragment = new MasterListFragment();
 
         getSupportFragmentManager().beginTransaction()
@@ -125,6 +127,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
 
     private void startDetailsActivity(Bundle bundle) {
         final Intent intent = new Intent(this, StepDetailsActivity.class);
+        bundle.putString(RECIPE_NAME_BUNDLE_KEY, recipe.getName());
         intent.putExtras(bundle);
 
         startActivity(intent);

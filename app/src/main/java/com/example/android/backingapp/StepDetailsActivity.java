@@ -26,12 +26,14 @@ public class StepDetailsActivity extends AppCompatActivity {
     public static final String INGREDIENTS_BUNDLE_SAVE_KEY = "IngredientsBundleSaveKey";
 
     public static final String SERVINGS_BUNDLE_SAVE_KEY = "ServingsBundleSaveKey";
+    public static final String RECIPE_NAME_BUNDLE_SAVE_KEY = "RecipeNameBundleSaveKey";
 
     private Step step;
     private String videoURL;
     private String description;
     private ArrayList<Ingredient> ingredients;
     private int servings;
+    private String recipeName;
 
     ActivityStepDetailsBinding binding;
 
@@ -63,6 +65,10 @@ public class StepDetailsActivity extends AppCompatActivity {
                     servings = intent.getIntExtra(StepsActivity.SERVINGS_BUNDLE_KEY, 0);
                 }
 
+                if (intent.hasExtra(StepsActivity.RECIPE_NAME_BUNDLE_KEY)) {
+                    recipeName = intent.getStringExtra(StepsActivity.RECIPE_NAME_BUNDLE_KEY);
+                }
+
             }
         } else {
             Timber.d(">>Load saved");
@@ -71,7 +77,10 @@ public class StepDetailsActivity extends AppCompatActivity {
             description = savedInstanceState.getString(STEP_INSTRUCTIONS_BUNDLE_SAVE_KEY);
             ingredients = savedInstanceState.getParcelableArrayList(INGREDIENTS_BUNDLE_SAVE_KEY);
             servings = savedInstanceState.getInt(SERVINGS_BUNDLE_SAVE_KEY);
+            recipeName = savedInstanceState.getString(RECIPE_NAME_BUNDLE_SAVE_KEY);
         }
+
+        setTitle(recipeName);
 
         if (step != null) {
             showStepDetails(step);
@@ -89,6 +98,7 @@ public class StepDetailsActivity extends AppCompatActivity {
         bundle.putString(STEP_INSTRUCTIONS_BUNDLE_SAVE_KEY, description);
         bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_SAVE_KEY, ingredients);
         bundle.putInt(SERVINGS_BUNDLE_SAVE_KEY, servings);
+        bundle.putString(RECIPE_NAME_BUNDLE_SAVE_KEY, recipeName);
     }
 
     private void showIngredients(List<Ingredient> ingredients) {
