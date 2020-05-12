@@ -23,7 +23,6 @@ import timber.log.Timber;
 
 public class StepsActivity extends AppCompatActivity implements OnRecipeStepClickListener {
 
-    public static final String RECIPE_BUNDLE_KEY = "RecipeBundleKey";
     public static final String RECIPE_BUNDLE_SAVED_KEY = "RecipeBundleSavedKey";
     public static final String STEP_BUNDLE_SAVED_KEY = "StepBundleSavedKey";
     public static final String INGREDIENTS_BUNDLE_SAVED_KEY = "IngredientsBundleSavedKey";
@@ -41,6 +40,9 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     private Step currentStep;
     private ArrayList<Ingredient> currentIngredients;
     private boolean showIngredients;
+
+    private List<View> itemViewList;
+    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +82,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content, masterListFragment).commit();
 
-        Bundle bundle = new Bundle();
-
-        bundle.putParcelable(RECIPE_BUNDLE_KEY, recipe);
-        masterListFragment.setArguments(bundle);
-
+        masterListFragment.setRecipe(recipe);
     }
 
     @Override
@@ -97,10 +95,11 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     }
 
     @Override
-    public void onRecipeStepSelected(Step step) {
+    public void onRecipeStepSelected(Step step, int position, List<View> itemViewList) {
         currentStep = step;
         showIngredients = false;
         if (tabletDisplay) {
+            highlightSelectedStep(position, itemViewList);
             showStepDetails(step);
         } else {
             Bundle bundle = new Bundle();
@@ -111,10 +110,11 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     }
 
     @Override
-    public void onRecipeIngredientsSelected(ArrayList<Ingredient> ingredients) {
+    public void onRecipeIngredientsSelected(ArrayList<Ingredient> ingredients, int position, List<View> itemViewList) {
         currentIngredients = ingredients;
         showIngredients = true;
         if (tabletDisplay) {
+            highlightSelectedStep(position, itemViewList);
             showIngredients(ingredients, recipe.getServings());
         } else {
             Bundle bundle = new Bundle();
@@ -166,5 +166,17 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.recipe_instructions, ingredientsFragment)
                 .commit();
+    }
+
+    private void highlightSelectedStep(int position, List<View> itemViewList) {
+        this.itemViewList = itemViewList;
+        this.position = position;
+        for (View view : itemViewList) {
+            if (itemViewList.get(position) == view) {
+                view.findViewById(R.id.steps_card_view).setBackgroundResource(R.color.colorStepSelected);
+            } else {
+                view.findViewById(R.id.steps_card_view).setBackgroundResource(R.color.colorStepDefault);
+            }
+        }
     }
 }

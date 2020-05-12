@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.backingapp.R;
-import com.example.android.backingapp.StepsActivity;
 import com.example.android.backingapp.adapter.StepAdapterOnClickHandler;
 import com.example.android.backingapp.adapter.StepsAdapter;
 import com.example.android.backingapp.api.model.Ingredient;
@@ -21,6 +20,7 @@ import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.api.model.Step;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MasterListFragment extends Fragment implements StepAdapterOnClickHandler {
 
@@ -29,6 +29,7 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
 
     private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private ArrayList<Step> steps = new ArrayList<>();
+    private Recipe recipe;
 
     private OnRecipeStepClickListener callback;
 
@@ -52,17 +53,13 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             steps = savedInstanceState.getParcelableArrayList(STEPS_BUNDLE_KEY);
             ingredients = savedInstanceState.getParcelableArrayList(INGREDIENTS_BUNDLE_KEY);
         } else {
-            if (getArguments() != null) {
-                Recipe recipe = getArguments().getParcelable(StepsActivity.RECIPE_BUNDLE_KEY);
-//            stepDescriptions.add("Ingredients");
-                if (recipe != null) {
-                    steps.addAll(recipe.getSteps());
-                    ingredients.addAll(recipe.getIngredients());
-                }
+            if (recipe != null) {
+                steps.addAll(recipe.getSteps());
+                ingredients.addAll(recipe.getIngredients());
             }
         }
     }
@@ -90,12 +87,16 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
     }
 
     @Override
-    public void onStepSelected(Step step) {
-        callback.onRecipeStepSelected(step);
+    public void onStepSelected(Step step, int position, List<View> itemViewList) {
+        callback.onRecipeStepSelected(step, position, itemViewList);
     }
 
     @Override
-    public void onIngredientsSelected(ArrayList<Ingredient> ingredients) {
-        callback.onRecipeIngredientsSelected(ingredients);
+    public void onIngredientsSelected(ArrayList<Ingredient> ingredients, int position, List<View> itemViewList) {
+        callback.onRecipeIngredientsSelected(ingredients, position, itemViewList);
+    }
+
+    public void setRecipe(Recipe recipe){
+        this.recipe = recipe;
     }
 }
