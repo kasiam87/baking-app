@@ -50,13 +50,10 @@ public class StepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         if (viewHolder.getItemViewType() == 0) {
             IngredientsViewHolder ingredientsViewHolder = (IngredientsViewHolder) viewHolder;
-
             ingredientsViewHolder.ingredientsCard.setText(R.string.ingredients_label);
         } else {
             StepViewHolder stepViewHolder = (StepViewHolder) viewHolder;
-
             stepViewHolder.stepCard.setText(steps.get(position - 1).getShortDescription());
-
         }
     }
 
@@ -78,7 +75,7 @@ public class StepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         @Override
         public void onClick(View view) {
             int adapterPosition = getAdapterPosition();
-            Step step = steps.get(adapterPosition);
+            Step step = steps.get(adapterPosition - 1);
             stepClickHandler.onStepSelected(step);
         }
     }

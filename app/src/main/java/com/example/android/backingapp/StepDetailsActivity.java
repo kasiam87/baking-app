@@ -93,19 +93,16 @@ public class StepDetailsActivity extends AppCompatActivity {
 
     private void showIngredients(List<Ingredient> ingredients) {
         findViewById(R.id.video_player).setVisibility(View.GONE);
-        findViewById(R.id.recipe_instructions).setVisibility(View.GONE);
-        findViewById(R.id.recipe_ingredients).setVisibility(View.VISIBLE);
+        findViewById(R.id.recipe_instructions).setVisibility(View.VISIBLE);
 
         StepDetailsFragment ingredientsFragment = new StepDetailsFragment();
         ingredientsFragment.setStepDetails(TextFormatter.formatIngredients(ingredients, servings));
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.recipe_ingredients, ingredientsFragment)
+                .replace(R.id.recipe_instructions, ingredientsFragment)
                 .commit();
     }
 
     public void showStepDetails(Step step) {
-        findViewById(R.id.recipe_ingredients).setVisibility(View.GONE);
-
         StepDetailsFragment videoFragment = new StepDetailsFragment();
         if (step.getVideoURL() != null && !step.getVideoURL().isEmpty()) {
             findViewById(R.id.video_player).setVisibility(View.VISIBLE);
