@@ -16,6 +16,7 @@ import com.example.android.backingapp.R;
 import com.example.android.backingapp.StepsActivity;
 import com.example.android.backingapp.adapter.StepAdapterOnClickHandler;
 import com.example.android.backingapp.adapter.StepsAdapter;
+import com.example.android.backingapp.api.model.Ingredient;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.api.model.Step;
 
@@ -24,8 +25,9 @@ import java.util.ArrayList;
 public class MasterListFragment extends Fragment implements StepAdapterOnClickHandler {
 
     private static final String STEPS_BUNDLE_KEY = "StepsBundleKey";
+    private static final String INGREDIENTS_BUNDLE_KEY = "IngredientsBundleKey";
 
-    String ingredients;
+    private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private ArrayList<Step> steps = new ArrayList<>();
 
     private OnRecipeStepClickListener callback;
@@ -42,7 +44,7 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
         try {
             callback = (OnRecipeStepClickListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " should implement OnStepClickListener");
+            throw new ClassCastException(context.toString() + " should implement OnRecipeStepClickListener");
         }
     }
 
@@ -52,12 +54,14 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
 
         if (savedInstanceState != null){
             steps = savedInstanceState.getParcelableArrayList(STEPS_BUNDLE_KEY);
+            ingredients = savedInstanceState.getParcelableArrayList(INGREDIENTS_BUNDLE_KEY);
         } else {
             if (getArguments() != null) {
                 Recipe recipe = getArguments().getParcelable(StepsActivity.RECIPE_BUNDLE_KEY);
 //            stepDescriptions.add("Ingredients");
                 if (recipe != null) {
                     steps.addAll(recipe.getSteps());
+                    ingredients.addAll(recipe.getIngredients());
                 }
             }
         }
@@ -73,6 +77,7 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
         stepsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         stepsAdapter = new StepsAdapter(this);
         stepsAdapter.setSteps(steps);
+        stepsAdapter.setIngredients(ingredients);
         stepsRecyclerView.setAdapter(stepsAdapter);
         return rootView;
     }
@@ -81,10 +86,16 @@ public class MasterListFragment extends Fragment implements StepAdapterOnClickHa
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(STEPS_BUNDLE_KEY, stepsAdapter.getSteps());
+        outState.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, stepsAdapter.getIngredients());
     }
 
     @Override
     public void onStepSelected(Step step) {
         callback.onRecipeStepSelected(step);
+    }
+
+    @Override
+    public void onIngredientsSelected(ArrayList<Ingredient> ingredients) {
+        callback.onRecipeIngredientsSelected(ingredients);
     }
 }

@@ -10,34 +10,55 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.backingapp.R;
+import com.example.android.backingapp.api.model.Ingredient;
 import com.example.android.backingapp.api.model.Step;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepViewHolder> {
+public class StepsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Step> steps;
+    private ArrayList<Ingredient> ingredients;
     private StepAdapterOnClickHandler stepClickHandler;
 
     public StepsAdapter(StepAdapterOnClickHandler clickHandler) {
         this.stepClickHandler = clickHandler;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     @NonNull
     @Override
-    public StepViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
 
-        View view = LayoutInflater.from(context)
-                .inflate(R.layout.fragment_master_list, viewGroup, false);
-        return new StepViewHolder(view);
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        View ingredientsView = inflater.inflate(R.layout.fragment_master_list_ingredients, viewGroup, false);
+        View stepView = inflater.inflate(R.layout.fragment_master_list, viewGroup, false);
+
+        if (viewType == 0) {
+            return new IngredientsViewHolder(ingredientsView);
+        }
+        return new StepViewHolder(stepView);
     }
 
     @Override
-    public void onBindViewHolder(StepViewHolder viewHolder, int position) {
-        Step step = steps.get(position);
-        viewHolder.stepCard.setText(step.getShortDescription());
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        if (viewHolder.getItemViewType() == 0) {
+            IngredientsViewHolder ingredientsViewHolder = (IngredientsViewHolder) viewHolder;
+
+            ingredientsViewHolder.ingredientsCard.setText(R.string.ingredients_label);
+        } else {
+            StepViewHolder stepViewHolder = (StepViewHolder) viewHolder;
+
+            stepViewHolder.stepCard.setText(steps.get(position - 1).getShortDescription());
+
+        }
     }
 
     @Override
@@ -63,6 +84,22 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepViewHold
         }
     }
 
+    public class IngredientsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        TextView ingredientsCard;
+
+        IngredientsViewHolder(View itemView) {
+            super(itemView);
+            itemView.setOnClickListener(this);
+            ingredientsCard = itemView.findViewById(R.id.ingredients);
+        }
+
+        @Override
+        public void onClick(View view) {
+            stepClickHandler.onIngredientsSelected(ingredients);
+        }
+    }
+
     public void setSteps(List<Step> steps) {
         if (steps == null) {
             this.steps = new ArrayList<>();
@@ -78,5 +115,22 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepViewHold
             return new ArrayList<>();
         }
         return new ArrayList<>(steps);
+    }
+
+    public void setIngredients(ArrayList<Ingredient> ingredients) {
+        if (ingredients == null) {
+            this.ingredients = new ArrayList<>();
+        } else {
+            this.ingredients = ingredients;
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public ArrayList<Ingredient> getIngredients() {
+        if (ingredients == null){
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(ingredients);
     }
 }
