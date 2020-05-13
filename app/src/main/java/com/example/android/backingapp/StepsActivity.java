@@ -62,10 +62,10 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     private ArrayList<Ingredient> currentIngredients;
     private boolean showIngredients;
 
-    private SimpleExoPlayer mExoPlayer;
-    private SimpleExoPlayerView mPlayerView;
-    private MediaSessionCompat mMediaSession;
-    private PlaybackStateCompat.Builder mStateBuilder;
+    private SimpleExoPlayer exoPlayer;
+    private SimpleExoPlayerView playerView;
+    private MediaSessionCompat mediaSession;
+    private PlaybackStateCompat.Builder stateBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
 
         tabletDisplay = findViewById(R.id.step_details_linear_layout) != null;
 
-        mPlayerView = findViewById(R.id.video_player);
+        playerView = findViewById(R.id.video_player);
 
         initializeMediaSession();
 
@@ -177,7 +177,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
             findViewById(R.id.video_player).setVisibility(View.GONE);
         }
 
-        if (!step.getDescription().equals(step.getShortDescription())){
+        if (!step.getDescription().equals(step.getShortDescription())) {
             findViewById(R.id.recipe_instructions).setVisibility(View.VISIBLE);
             StepDetailsFragment instructionsFragment = new StepDetailsFragment();
             instructionsFragment.setStepDetails(step.getDescription());
@@ -211,26 +211,26 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     }
 
     private void initializePlayer(Uri uri) {
-        if (mExoPlayer == null) {
+        if (exoPlayer == null) {
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
-            mExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl);
-            mPlayerView.setPlayer(mExoPlayer);
+            exoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl);
+            playerView.setPlayer(exoPlayer);
 
-            mExoPlayer.addListener(this);
+            exoPlayer.addListener(this);
             String userAgent = Util.getUserAgent(this, getResources().getString(R.string.app_name));
             MediaSource mediaSource = new ExtractorMediaSource(uri, new DefaultDataSourceFactory(
                     this, userAgent), new DefaultExtractorsFactory(), null, null);
-            mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
+            exoPlayer.prepare(mediaSource);
+            exoPlayer.setPlayWhenReady(true);
         }
     }
 
     private void releasePlayer() {
-        if (mExoPlayer != null) {
-            mExoPlayer.stop();
-            mExoPlayer.release();
-            mExoPlayer = null;
+        if (exoPlayer != null) {
+            exoPlayer.stop();
+            exoPlayer.release();
+            exoPlayer = null;
         }
     }
 
@@ -238,7 +238,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     protected void onDestroy() {
         super.onDestroy();
         releasePlayer();
-        mMediaSession.setActive(false);
+        mediaSession.setActive(false);
     }
 
     @Override
@@ -270,14 +270,14 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        if((playbackState == ExoPlayer.STATE_READY) && playWhenReady){
-            mStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
-                    mExoPlayer.getCurrentPosition(), 1f);
-        } else if((playbackState == ExoPlayer.STATE_READY)){
-            mStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
-                    mExoPlayer.getCurrentPosition(), 1f);
+        if ((playbackState == ExoPlayer.STATE_READY) && playWhenReady) {
+            stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
+                    exoPlayer.getCurrentPosition(), 1f);
+        } else if ((playbackState == ExoPlayer.STATE_READY)) {
+            stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
+                    exoPlayer.getCurrentPosition(), 1f);
         }
-        mMediaSession.setPlaybackState(mStateBuilder.build());
+        mediaSession.setPlaybackState(stateBuilder.build());
     }
 
     @Override
@@ -291,35 +291,35 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     }
 
     private void initializeMediaSession() {
-        mMediaSession = new MediaSessionCompat(this, StepsActivity.class.getSimpleName());
-        mMediaSession.setMediaButtonReceiver(null);
+        mediaSession = new MediaSessionCompat(this, StepsActivity.class.getSimpleName());
+        mediaSession.setMediaButtonReceiver(null);
 
-        mStateBuilder = new PlaybackStateCompat.Builder()
+        stateBuilder = new PlaybackStateCompat.Builder()
                 .setActions(
                         PlaybackStateCompat.ACTION_PLAY |
                                 PlaybackStateCompat.ACTION_PAUSE |
                                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
                                 PlaybackStateCompat.ACTION_PLAY_PAUSE);
 
-        mMediaSession.setPlaybackState(mStateBuilder.build());
-        mMediaSession.setCallback(new MediaSessionCallback());
-        mMediaSession.setActive(true);
+        mediaSession.setPlaybackState(stateBuilder.build());
+        mediaSession.setCallback(new MediaSessionCallback());
+        mediaSession.setActive(true);
     }
 
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
         @Override
         public void onPlay() {
-            mExoPlayer.setPlayWhenReady(true);
+            exoPlayer.setPlayWhenReady(true);
         }
 
         @Override
         public void onPause() {
-            mExoPlayer.setPlayWhenReady(false);
+            exoPlayer.setPlayWhenReady(false);
         }
 
         @Override
         public void onSkipToPrevious() {
-            mExoPlayer.seekTo(0);
+            exoPlayer.seekTo(0);
         }
     }
 }
