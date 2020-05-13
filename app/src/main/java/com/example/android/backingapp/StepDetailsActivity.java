@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 
 import com.example.android.backingapp.api.model.Ingredient;
@@ -16,8 +17,6 @@ import com.example.android.backingapp.fragment.StepDetailsFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
-
 public class StepDetailsActivity extends AppCompatActivity {
 
     public static final String STEP_BUNDLE_SAVE_KEY = "StepBundleSaveKey";
@@ -27,6 +26,8 @@ public class StepDetailsActivity extends AppCompatActivity {
 
     public static final String SERVINGS_BUNDLE_SAVE_KEY = "ServingsBundleSaveKey";
     public static final String RECIPE_NAME_BUNDLE_SAVE_KEY = "RecipeNameBundleSaveKey";
+    public static final String POSITION_BUNDLE_SAVE_KEY = "PositionBundleSaveKey";
+    public static final String RECIPE_STEPS_BUNDLE_SAVE_KEY = "RecipeStepsBundleSaveKey";
 
     private Step step;
     private String videoURL;
@@ -34,6 +35,9 @@ public class StepDetailsActivity extends AppCompatActivity {
     private ArrayList<Ingredient> ingredients;
     private int servings;
     private String recipeName;
+
+    private int position;
+    private List<Step> recipeSteps;
 
     ActivityStepDetailsBinding binding;
 
@@ -44,10 +48,8 @@ public class StepDetailsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         if (savedInstanceState == null) {
-            Timber.d(">>Load new");
             Intent intent = getIntent();
             if (intent != null) {
-                Timber.d("Intent not null");
 
                 if (intent.hasExtra(StepsActivity.STEP_BUNDLE_KEY)){
                     step = intent.getParcelableExtra(StepsActivity.STEP_BUNDLE_KEY);
@@ -69,25 +71,68 @@ public class StepDetailsActivity extends AppCompatActivity {
                     recipeName = intent.getStringExtra(StepsActivity.RECIPE_NAME_BUNDLE_KEY);
                 }
 
+                if (intent.hasExtra(StepsActivity.POSITION_BUNDLE_KEY)) {
+                    position = intent.getIntExtra(StepsActivity.POSITION_BUNDLE_KEY, 0);
+                }
+
+                if (intent.hasExtra(StepsActivity.RECIPE_STEPS_BUNDLE_KEY)) {
+                    recipeSteps = intent.getParcelableArrayListExtra(StepsActivity.RECIPE_STEPS_BUNDLE_KEY);
+                }
+
             }
         } else {
-            Timber.d(">>Load saved");
             step = savedInstanceState.getParcelable(STEP_BUNDLE_SAVE_KEY);
             videoURL = savedInstanceState.getString(STEP_VIDEO_BUNDLE_SAVE_KEY);
             description = savedInstanceState.getString(STEP_INSTRUCTIONS_BUNDLE_SAVE_KEY);
             ingredients = savedInstanceState.getParcelableArrayList(INGREDIENTS_BUNDLE_SAVE_KEY);
             servings = savedInstanceState.getInt(SERVINGS_BUNDLE_SAVE_KEY);
             recipeName = savedInstanceState.getString(RECIPE_NAME_BUNDLE_SAVE_KEY);
+            position = savedInstanceState.getInt(POSITION_BUNDLE_SAVE_KEY);
+            recipeSteps = savedInstanceState.getParcelableArrayList(RECIPE_STEPS_BUNDLE_SAVE_KEY);
         }
 
         setTitle(recipeName);
 
-        if (step != null) {
+        if (position != 0) {
             showStepDetails(step);
-        }
-        if (ingredients != null && !ingredients.isEmpty()) {
+        } else if (ingredients != null && !ingredients.isEmpty()) {
             showIngredients(ingredients);
         }
+
+        findViewById(R.id.button_next).setOnClickListener(getOnClickNextListener());
+        findViewById(R.id.button_prev).setOnClickListener(getOnClickPrevListener());
+    }
+
+    @NonNull
+    private View.OnClickListener getOnClickNextListener() {
+        return view -> {
+            if (position == 0 || position < recipeSteps.size()){
+                position++;
+                step = recipeSteps.get(position - 1);
+                showStepDetails(step);
+            }  else {
+                position = 0;
+                showIngredients(ingredients);
+            }
+        };
+    }
+
+    @NonNull
+    private View.OnClickListener getOnClickPrevListener() {
+        return view -> {
+            if (position == 1){
+                position--;
+                showIngredients(ingredients);
+            } else if (position > 1) {
+                position--;
+                step = recipeSteps.get(position - 1);
+                showStepDetails(step);
+            } else {
+                position = recipeSteps.size();
+                step = recipeSteps.get(position -1);
+                showStepDetails(step);
+            }
+        };
     }
 
     @Override
@@ -99,6 +144,8 @@ public class StepDetailsActivity extends AppCompatActivity {
         bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_SAVE_KEY, ingredients);
         bundle.putInt(SERVINGS_BUNDLE_SAVE_KEY, servings);
         bundle.putString(RECIPE_NAME_BUNDLE_SAVE_KEY, recipeName);
+        bundle.putInt(POSITION_BUNDLE_SAVE_KEY, position);
+        bundle.putParcelableArrayList(RECIPE_STEPS_BUNDLE_SAVE_KEY, (ArrayList<? extends Parcelable>) recipeSteps);
     }
 
     private void showIngredients(List<Ingredient> ingredients) {
@@ -116,7 +163,7 @@ public class StepDetailsActivity extends AppCompatActivity {
         StepDetailsFragment videoFragment = new StepDetailsFragment();
         if (step.getVideoURL() != null && !step.getVideoURL().isEmpty()) {
             findViewById(R.id.video_player).setVisibility(View.VISIBLE);
-            videoFragment.setStepDetails(videoURL);
+            videoFragment.setStepDetails(step.getVideoURL());
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.video_player, videoFragment)
                     .commit();

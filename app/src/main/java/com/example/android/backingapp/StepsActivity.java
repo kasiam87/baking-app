@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 
 import com.example.android.backingapp.api.model.Ingredient;
@@ -30,6 +31,8 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
 
     public static final String STEP_BUNDLE_KEY = "StepBundleKey";
     public static final String RECIPE_NAME_BUNDLE_KEY = "RecipeNameBundleKey";
+    public static final String POSITION_BUNDLE_KEY = "PositionBundleKey";
+    public static final String RECIPE_STEPS_BUNDLE_KEY = "RecipeStepsBundleKey";
 
     public static final String INGREDIENTS_BUNDLE_KEY = "IngredientsBundleKey";
     public static final String SERVINGS_BUNDLE_KEY = "ServingsBundleKey";
@@ -40,9 +43,6 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     private Step currentStep;
     private ArrayList<Ingredient> currentIngredients;
     private boolean showIngredients;
-
-    private List<View> itemViewList;
-    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +104,10 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         } else {
             Bundle bundle = new Bundle();
             bundle.putParcelable(STEP_BUNDLE_KEY, step);
+            bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getIngredients());
+            bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
+            bundle.putInt(POSITION_BUNDLE_KEY, position);
+            bundle.putParcelableArrayList(RECIPE_STEPS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getSteps());
 
             startDetailsActivity(bundle);
         }
@@ -120,6 +124,8 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, ingredients);
             bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
+            bundle.putInt(POSITION_BUNDLE_KEY, position);
+            bundle.putParcelableArrayList(RECIPE_STEPS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getSteps());
 
             startDetailsActivity(bundle);
         }
@@ -169,8 +175,6 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     }
 
     private void highlightSelectedStep(int position, List<View> itemViewList) {
-        this.itemViewList = itemViewList;
-        this.position = position;
         for (View view : itemViewList) {
             if (itemViewList.get(position) == view) {
                 view.findViewById(R.id.steps_card_view).setBackgroundResource(R.color.colorStepSelected);
