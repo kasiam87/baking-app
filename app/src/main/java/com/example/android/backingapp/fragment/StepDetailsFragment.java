@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,11 @@ public class StepDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_step_details, container, false);
         TextView textView = rootView.findViewById(R.id.step_detail_item);
-        textView.setText(stepDetail);
+        if (stepDetail != null) {
+            textView.setText(stepDetail);
+        } else {
+            textView.setVisibility(View.GONE);
+        }
         return rootView;
     }
 

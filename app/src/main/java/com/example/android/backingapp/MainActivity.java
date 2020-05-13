@@ -60,10 +60,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
         recipesAdapter = new RecipesAdapter(this);
 
         if (savedInstanceState == null) {
-            Timber.d(">>Load new");
             loadRecipesView();
         } else {
-            Timber.d(">>Load saved");
             restoreRecipesView(savedInstanceState);
         }
         binding.recipesRecyclerView.setAdapter(recipesAdapter);

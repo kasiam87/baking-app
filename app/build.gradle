@@ -45,4 +45,8 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'androidx.cardview:cardview:1.0.0'
+
+    implementation 'com.google.android.exoplayer:exoplayer:r2.2.0'
+
+    implementation "androidx.media:media:1.1.0"
 }
