@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="colorStepSelected">#FFEB3B</color>
     <color name="colorStepDefault">#FFFFFF</color>
+    <color name="widgetBackground">#09C</color>
 </resources>

@@ -15,6 +15,7 @@ import com.example.android.backingapp.adapter.RecipeAdapterOnClickHandler;
 import com.example.android.backingapp.adapter.RecipesAdapter;
 import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.databinding.ActivityMainBinding;
+import com.example.android.backingapp.display.TextFormatter;
 import com.example.android.backingapp.loader.RecipesAsyncLoader;
 import com.google.gson.Gson;
 
@@ -121,6 +122,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapterOnCl
     public void onClick(Recipe recipe) {
         Intent recipeIntent = new Intent(this, StepsActivity.class);
         recipeIntent.putExtra(RECIPE_JSON, new Gson().toJson(recipe));
+        IngredientsWidgetIntentService.startBakingService(this,
+                TextFormatter.formatIngredients(recipe.getIngredients(), recipe.getServings()));
         startActivity(recipeIntent);
     }
 }

@@ -4,6 +4,6 @@
     <string name="ingredients_label">Ingredients</string>
     <string name="prev_button">Previous</string>
     <string name="next_button">Next</string>
-    <string name="appwidget_text">EXAMPLE</string>
+    <string name="appwidget_text">Ingredients will appear here after selecting a recipe</string>
     <string name="add_widget">Add widget</string>
 </resources>
