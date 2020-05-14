@@ -1,4 +1,4 @@
-package com.example.android.backingapp;
+package com.example.android.backingapp.widget;
 
 import android.app.IntentService;
 import android.appwidget.AppWidgetManager;

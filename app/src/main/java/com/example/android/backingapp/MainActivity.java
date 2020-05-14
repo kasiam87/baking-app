@@ -17,6 +17,7 @@ import com.example.android.backingapp.api.model.Recipe;
 import com.example.android.backingapp.databinding.ActivityMainBinding;
 import com.example.android.backingapp.display.TextFormatter;
 import com.example.android.backingapp.loader.RecipesAsyncLoader;
+import com.example.android.backingapp.widget.IngredientsWidgetIntentService;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
