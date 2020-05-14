@@ -129,12 +129,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         } else {
             Bundle bundle = new Bundle();
             bundle.putParcelable(STEP_BUNDLE_KEY, step);
-            bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getIngredients());
-            bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
-            bundle.putInt(POSITION_BUNDLE_KEY, position);
-            bundle.putParcelableArrayList(RECIPE_STEPS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getSteps());
-
-            startDetailsActivity(bundle);
+            startDetailsActivity(bundle, position, (ArrayList<Ingredient>) recipe.getIngredients());
         }
     }
 
@@ -149,17 +144,17 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         } else {
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, ingredients);
-            bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
-            bundle.putInt(POSITION_BUNDLE_KEY, position);
-            bundle.putParcelableArrayList(RECIPE_STEPS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getSteps());
-
-            startDetailsActivity(bundle);
+            startDetailsActivity(bundle, position, ingredients);
         }
     }
 
-    private void startDetailsActivity(Bundle bundle) {
+    private void startDetailsActivity(Bundle bundle, int position, ArrayList<Ingredient> ingredients) {
         final Intent intent = new Intent(this, StepDetailsActivity.class);
         bundle.putString(RECIPE_NAME_BUNDLE_KEY, recipe.getName());
+        bundle.putInt(SERVINGS_BUNDLE_KEY, recipe.getServings());
+        bundle.putInt(POSITION_BUNDLE_KEY, position);
+        bundle.putParcelableArrayList(RECIPE_STEPS_BUNDLE_KEY, (ArrayList<? extends Parcelable>) recipe.getSteps());
+        bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_KEY, ingredients);
         intent.putExtras(bundle);
 
         startActivity(intent);
