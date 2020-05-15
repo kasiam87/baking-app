@@ -47,6 +47,8 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
     public static final String RECIPE_NAME_BUNDLE_SAVE_KEY = "RecipeNameBundleSaveKey";
     public static final String POSITION_BUNDLE_SAVE_KEY = "PositionBundleSaveKey";
     public static final String RECIPE_STEPS_BUNDLE_SAVE_KEY = "RecipeStepsBundleSaveKey";
+    public static final String PLAYER_POSITION_KEY = "PlayerPositionBundleSaveKey";
+    public static final String GET_PLAY_WHEN_READY_KEY = "GetPlayWhenReadyBundleSaveKey";
 
     private Step step;
     private String videoURL;
@@ -63,6 +65,10 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
     private SimpleExoPlayer exoPlayer;
     private MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
+
+    private boolean playWhenReady = true;
+    private int currentWindow = 0;
+    private long playbackPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +120,8 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
             recipeName = savedInstanceState.getString(RECIPE_NAME_BUNDLE_SAVE_KEY);
             position = savedInstanceState.getInt(POSITION_BUNDLE_SAVE_KEY);
             recipeSteps = savedInstanceState.getParcelableArrayList(RECIPE_STEPS_BUNDLE_SAVE_KEY);
+            playbackPosition = savedInstanceState.getLong(PLAYER_POSITION_KEY, 0);
+            playWhenReady = savedInstanceState.getBoolean(GET_PLAY_WHEN_READY_KEY);
         }
 
         setTitle(recipeName);
@@ -131,6 +139,7 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
     @NonNull
     private View.OnClickListener getOnClickNextListener() {
         return view -> {
+            releasePlayerOnStepChange();
             if (position == 0 || position < recipeSteps.size()) {
                 position++;
                 step = recipeSteps.get(position - 1);
@@ -145,6 +154,7 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
     @NonNull
     private View.OnClickListener getOnClickPrevListener() {
         return view -> {
+            releasePlayerOnStepChange();
             if (position == 1) {
                 position--;
                 showIngredients(ingredients);
@@ -171,10 +181,14 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
         bundle.putString(RECIPE_NAME_BUNDLE_SAVE_KEY, recipeName);
         bundle.putInt(POSITION_BUNDLE_SAVE_KEY, position);
         bundle.putParcelableArrayList(RECIPE_STEPS_BUNDLE_SAVE_KEY, (ArrayList<? extends Parcelable>) recipeSteps);
+
+        if (exoPlayer != null) {
+            bundle.putLong(PLAYER_POSITION_KEY, exoPlayer.getCurrentPosition());
+            bundle.putBoolean(GET_PLAY_WHEN_READY_KEY, exoPlayer.getPlayWhenReady());
+        }
     }
 
     private void showIngredients(List<Ingredient> ingredients) {
-        releasePlayer();
         binding.videoPlayer.setVisibility(View.GONE);
         binding.recipeInstructions.setVisibility(View.VISIBLE);
 
@@ -186,11 +200,11 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
     }
 
     public void showStepDetails(Step step) {
-        releasePlayer();
         StepDetailsFragment videoFragment = new StepDetailsFragment();
         if (step.getVideoURL() != null && !step.getVideoURL().isEmpty()) {
             binding.videoPlayer.setVisibility(View.VISIBLE);
-            initializePlayer(Uri.parse(step.getVideoURL()));
+            videoURL = step.getVideoURL();
+            initializePlayer(Uri.parse(videoURL));
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.video_player, videoFragment)
                     .commit();
@@ -211,7 +225,7 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
 
     }
 
-    private void initializePlayer(Uri mediaUri) {
+    private void initializePlayer(Uri uri) {
         if (exoPlayer == null) {
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
@@ -220,16 +234,30 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
 
             exoPlayer.addListener(this);
             String userAgent = Util.getUserAgent(this, getResources().getString(R.string.app_name));
-            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
+            MediaSource mediaSource = new ExtractorMediaSource(uri, new DefaultDataSourceFactory(
                     this, userAgent), new DefaultExtractorsFactory(), null, null);
-            exoPlayer.prepare(mediaSource);
-            exoPlayer.setPlayWhenReady(true);
+
+            exoPlayer.setPlayWhenReady(playWhenReady);
+            exoPlayer.seekTo(currentWindow, playbackPosition);
+            exoPlayer.prepare(mediaSource, false, false);
         }
     }
 
     private void releasePlayer() {
         if (exoPlayer != null) {
-            exoPlayer.stop();
+            playWhenReady = exoPlayer.getPlayWhenReady();
+            playbackPosition = exoPlayer.getCurrentPosition();
+            currentWindow = exoPlayer.getCurrentWindowIndex();
+            exoPlayer.release();
+            exoPlayer = null;
+        }
+    }
+
+    private void releasePlayerOnStepChange() {
+        if (exoPlayer != null) {
+            playWhenReady = true;
+            playbackPosition = 0;
+            currentWindow = 0;
             exoPlayer.release();
             exoPlayer = null;
         }
@@ -245,13 +273,33 @@ public class StepDetailsActivity extends AppCompatActivity implements ExoPlayer.
     @Override
     protected void onPause() {
         super.onPause();
-        releasePlayer();
+        if (Util.SDK_INT < 24) {
+            releasePlayer();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        releasePlayer();
+        if (Util.SDK_INT >= 24) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (Util.SDK_INT >= 24 && videoURL != null) {
+            initializePlayer(Uri.parse(videoURL));
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if ((Util.SDK_INT < 24 && videoURL != null)) {
+            initializePlayer(Uri.parse(videoURL));
+        }
     }
 
     @Override
