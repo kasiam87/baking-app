@@ -55,6 +55,9 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     public static final String INGREDIENTS_BUNDLE_KEY = "IngredientsBundleKey";
     public static final String SERVINGS_BUNDLE_KEY = "ServingsBundleKey";
 
+    public static final String PLAYER_POSITION_KEY = "PlayerPositionBundleSaveKey";
+    public static final String GET_PLAY_WHEN_READY_KEY = "GetPlayWhenReadyBundleSaveKey";
+
     private boolean tabletDisplay;
 
     private Recipe recipe;
@@ -66,6 +69,10 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     private SimpleExoPlayerView playerView;
     private MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
+
+    private boolean playWhenReady = true;
+    private int currentWindow = 0;
+    private long playbackPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,10 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
             currentStep = savedInstanceState.getParcelable(STEP_BUNDLE_SAVED_KEY);
             currentIngredients = savedInstanceState.getParcelableArrayList(INGREDIENTS_BUNDLE_SAVED_KEY);
             showIngredients = savedInstanceState.getBoolean(SHOW_INGREDIENTS_BUNDLE_SAVED_KEY);
+
+            playbackPosition = savedInstanceState.getLong(PLAYER_POSITION_KEY, 0);
+            playWhenReady = savedInstanceState.getBoolean(GET_PLAY_WHEN_READY_KEY);
+
             if (tabletDisplay && currentStep != null) {
                 showStepDetails(currentStep);
             }
@@ -116,6 +127,9 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         bundle.putParcelable(STEP_BUNDLE_SAVED_KEY, currentStep);
         bundle.putParcelableArrayList(INGREDIENTS_BUNDLE_SAVED_KEY, currentIngredients);
         bundle.putBoolean(SHOW_INGREDIENTS_BUNDLE_SAVED_KEY, showIngredients);
+
+        bundle.putLong(PLAYER_POSITION_KEY, playbackPosition);
+        bundle.putBoolean(GET_PLAY_WHEN_READY_KEY, playWhenReady);
     }
 
     @Override
@@ -123,7 +137,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         currentStep = step;
         showIngredients = false;
         if (tabletDisplay) {
-            releasePlayer();
+            releasePlayerOnStepChange();
             highlightSelectedStep(position, itemViewList);
             showStepDetails(step);
         } else {
@@ -138,7 +152,7 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
         currentIngredients = ingredients;
         showIngredients = true;
         if (tabletDisplay) {
-            releasePlayer();
+            releasePlayerOnStepChange();
             highlightSelectedStep(position, itemViewList);
             showIngredients(ingredients, recipe.getServings());
         } else {
@@ -216,14 +230,28 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
             String userAgent = Util.getUserAgent(this, getResources().getString(R.string.app_name));
             MediaSource mediaSource = new ExtractorMediaSource(uri, new DefaultDataSourceFactory(
                     this, userAgent), new DefaultExtractorsFactory(), null, null);
-            exoPlayer.prepare(mediaSource);
-            exoPlayer.setPlayWhenReady(true);
+
+            exoPlayer.setPlayWhenReady(playWhenReady);
+            exoPlayer.seekTo(currentWindow, playbackPosition);
+            exoPlayer.prepare(mediaSource, false, false);
         }
     }
 
     private void releasePlayer() {
         if (exoPlayer != null) {
-            exoPlayer.stop();
+            playWhenReady = exoPlayer.getPlayWhenReady();
+            playbackPosition = exoPlayer.getCurrentPosition();
+            currentWindow = exoPlayer.getCurrentWindowIndex();
+            exoPlayer.release();
+            exoPlayer = null;
+        }
+    }
+
+    private void releasePlayerOnStepChange() {
+        if (exoPlayer != null) {
+            playWhenReady = true;
+            playbackPosition = 0;
+            currentWindow = 0;
             exoPlayer.release();
             exoPlayer = null;
         }
@@ -239,15 +267,38 @@ public class StepsActivity extends AppCompatActivity implements OnRecipeStepClic
     @Override
     protected void onPause() {
         super.onPause();
-        releasePlayer();
+        if (Util.SDK_INT < 24) {
+            releasePlayer();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        releasePlayer();
+        if (Util.SDK_INT >= 24) {
+            if (exoPlayer != null) {
+                playbackPosition = exoPlayer.getCurrentPosition();
+                playWhenReady = exoPlayer.getPlayWhenReady();
+            }
+            releasePlayer();
+        }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (Util.SDK_INT >= 24 && currentStep != null && currentStep.getVideoURL() != null) {
+            initializePlayer(Uri.parse(currentStep.getVideoURL()));
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentStep != null && currentStep.getVideoURL() != null) {
+            initializePlayer(Uri.parse(currentStep.getVideoURL()));
+        }
+    }
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
 
